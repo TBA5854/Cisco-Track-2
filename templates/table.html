@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Table Website</title>
+  <style>
+    table {
+      margin: auto; /* Center the table horizontally */
+      border-collapse: collapse; /* Remove borders between cells */
+    }
+    th, td {
+      padding: 10px; /* Add padding to cells */
+      border: 1px solid #ddd; /* Add a thin border to cells */
+    }
+    th {
+      text-align: left; /* Align table headers to the left */
+    }
+    .data-1 {
+      background-color: red;
+    }
+    .data-2 {
+      background-color: green;
+    }
+    .data-3 {
+      background-color: yellow;
+    }
+  </style>
+</head>
+<body>
+  <h1>Table Data</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>r1</th>
+        <th>r3</th>
+        <th>r3</th>
+        <th>r4</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in data %}
+      <tr>
+        <td>{{ row['name'] }}</td>
+        <td class="{% if row['h'] <= 1 %}data-1{% elif row['h'] == 2 %}data-2{% elif row['h']>=3 %}data-3{% endif %}">{{ " " }}</td>
+        <td><a href="{{ row['age'] }}">{{ row['age'] }}</a></td>
+        <td>{{ row['city'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
