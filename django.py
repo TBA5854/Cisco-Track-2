@@ -2,7 +2,7 @@ def get_tableData():
   data = [
       {"name": "John Doe", "h":1,"age": 30, "city": "New York"},
       {"name": "John Doe", "h":2,"age": 30, "city": "New York"},
-      {"name": "John Doe", "h":3,"age": 30, "city": "New York"},
+      {"name": "John Doe", "h":3,"age": 30 , "city": "New York"},
       {"name": "Jane Smith", "h":1,"age": 25, "city": "London"},
   ]
   return data
