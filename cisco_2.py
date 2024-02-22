@@ -1,6 +1,5 @@
 from striprtf.striprtf import rtf_to_text
 
-# Read the RTF file
 with open('/home/tba/Downloads/Sample_configs_Prob 2/Sample_configs/conf_2034.rtf', 'r') as file:
     rtf_content = file.read()
 
@@ -8,7 +7,6 @@ with open('/home/tba/Downloads/Sample_configs_Prob 2/Sample_configs/conf_2034.rt
 
 text = [i.strip(" !\t") for i in text.split("\n")]
 text = [i for i in text if i != ""]
-# text.sort()
 for i in text:
     print(i)
 
