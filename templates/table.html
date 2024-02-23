@@ -88,13 +88,13 @@
             <tbody>
                 {% for device in devices %}
                 <tr>
-                    <td>{{ device.name }}</td>
-                    <td><a href="{{ device.url }}" target="_blank">{{ device.url }}</a></td>
+                    <td>{{ host }}</td>
+                    <td><a href="{{ file }}" target="_blank">{{ file }}</a></td>
                     <td>
                         <div class="risk-indicator {{ device.risk_level | lower }}-risk"></div>
                         {{ device.risk_level }}
                     </td>
-                    <td>{{ device.time }}</td>
+                    <td>{{ time }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

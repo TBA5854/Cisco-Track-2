@@ -100,8 +100,10 @@ def is_strong_password(line, min_length=8, char_classes=True):
     if len(line.split()) < 3:
       return False
     password=line.split()[-1]
-  if line.startswith("password"):
+  elif line.startswith("password"):
      password=line.split()[-1]
+  else:
+     return False
   if len(password) < min_length:
     return False
   if char_classes:
@@ -155,10 +157,6 @@ def detect_missing_dhcp_snooping(config_lines):
   for line in config_lines:
     if line.startswith("interface"):
       current_interface = line.split()[1]
-    elif current_interface and line.startswith("switchport mode access") and "vlan" in line:
-      vlan_id = int(line.split()[-1])
-      vlans.setdefault(vlan_id, {"interfaces": [], "dhcp_enabled": False})
-      vlans[vlan_id]["interfaces"].append(current_interface)
     elif line.startswith("ip dhcp snooping"):
       for vlan_id, vlan_info in vlans.items():
         vlan_info["dhcp_enabled"] = True
@@ -179,7 +177,7 @@ def detect_missing_dhcp_snooping(config_lines):
 def detect_port_security_issues_1(max_mac_addresses=1,line=text):
   issues = []
   current_interface = None
-  config_lines=[line]
+  config_lines=line
   for line in config_lines:
     if line.startswith("interface"):
       current_interface = line.split()[1]
@@ -196,7 +194,7 @@ def detect_port_security_issues_1(max_mac_addresses=1,line=text):
 def detect_port_security_issues_2(max_mac_addresses=1,line=text):
   issues = []
   current_interface = None
-  config_lines=[line]
+  config_lines=line
   for line in config_lines:
     if line.startswith("interface"):
       current_interface = line.split()[1]
@@ -307,7 +305,7 @@ fn_call=[
    fn_call_12,
    fn_call_13
    ]
-data={}
+data=[]
 for i in file_content:
   buffer_size = None
   s1=s2=s3=0
@@ -319,8 +317,8 @@ for i in file_content:
   f = open(f"templates/{hostname}.txt", "w")
   for k in i:
    for j in range(len(fn)):
-      #  if j==5:continue
-       if j==10:
+       if j==12:continue
+       if j in[10,9]:
          if fn[j](i) != 0 and fn[j](i) != [] and fn[j](i) != {} and fn[j](i) != False:
             if j in sev1:
                 s1+=1
@@ -328,9 +326,9 @@ for i in file_content:
                 s2+=1
             elif j in sev3:
                 s3+=1
-
-         if fn[j](k) != 0 and fn[j](k) != [] and fn[j](k) != {} and fn[j](k) != False:
-           fn_call[j](i)
+            
+       if fn[j](k) != 0 and fn[j](k) != [] and fn[j](k) != {} and fn[j](k) != False:
+           fn_call[j](k)
            if j in sev1:
                 s1+=1
            elif j in sev2:
@@ -339,7 +337,11 @@ for i in file_content:
                 s3+=1
        else:
            continue
-  data.append({"host":hostname,"s1":s1,"s2":s2,"s3":s3,"file":f"{hostname}.txt","s":s1+s2+s3})
+  import datetime
+
+  current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+  data.append({"host": hostname, "s1": s1, "s2": s2, "s3": s3, "file": f"{hostname}.txt", "s": s1 + s2 + s3, "time": current_time})
   f.close()
 
 from flask import Flask, render_template
