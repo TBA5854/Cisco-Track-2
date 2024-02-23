@@ -86,22 +86,21 @@
                 </tr>
             </thead>
             <tbody>
-                {% for device in devices %}
+                {% for device in data %}
                 <tr>
-                    <td>{{ host }}</td>
-                    <td><a href="{{ file }}" target="_blank">{{ file }}</a></td>
+                    <td>{{device.host}}</td>
+                    <td><a href="{{device.file}}">{{device.file}}</a></td>
                     <td>
-                        <div class="risk-indicator {{ device.risk_level | lower }}-risk"></div>
-                        {{ device.risk_level }}
+                        <div class="risk-indicator {{device.s}}-risk"></div>
+                        {{ device.s }}
                     </td>
-                    <td>{{ time }}</td>
+                    <td>{{ device.time }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- Materialize JavaScript (optional, if you need additional features) -->
     <script src="js.js"></script>
 </body>
 </html>
