@@ -1,15 +1,86 @@
 from striprtf.striprtf import rtf_to_text
-# import re
-with open('/home/tba/Downloads/Sample_configs_Prob 2/Sample_configs/conf_2038.rtf', 'r') as file:
-    rtf_content = file.read()
+file_content = []
+n=int(input("Enter the number of files:"))
+for i in range(n):
+    file_name=input("Enter the file name:")
+    with open(file_name, 'r') as file:
+        rtf_content = file.read()
 
-    text = rtf_to_text(rtf_content)
+        text = rtf_to_text(rtf_content)
+    file_content.append(text)
+# with open('/home/tba/Downloads/Sample_configs_Prob 2/Sample_configs/conf_2038.rtf', 'r') as file:
+#     rtf_content = file.read()
+
+#     text = rtf_to_text(rtf_content)
 
 text = [i.strip(" !\t") for i in text.split("\n")]
 text = [i for i in text if i != ""]
 for i in text:
-    print(i)
+   for j in range(len(fn)):
+       if fn[j] != 0:
+           fn_call[j](i)
+       else:
+           continue
 
+
+
+
+
+
+for i in text:
+    print(i)
+def fn_call_1 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 2\n Too many user accounts:{n}\n")
+
+def fn_call_2 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 1\n Weak user passwords:{n}\n")
+
+def fn_call_3 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 1\n  Missing configuration password:{n}\n")
+
+def fn_call_4 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 2\n Insecure access protocols:{n}\n")
+
+def fn_call_5 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 2\n Insecure SNMP access:{n}\n")
+
+def fn_call_6 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity:2 \n Weak encryption algorithms:{n}\n")
+    
+def fn_call_7 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 1\n  Missing host authentication on access ports:{n}\n")
+
+def fn_call_8 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 2\n Missing control plane policing:{n}\n")
+def fn_call_9 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 2\n  Missing Storm control on access ports:{n}\n")
+def fn_call_10_1 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 1\n port security config is missing on access port:{n}\n")
+
+def fn_call_10_2 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 2\nnumber_of_mac_addresses configured on switch are more than what is 
+mentioned in tool configuration:{n}\n")
+def fn_call_11 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 2\n Missing DHCP snooping on switch:{n}\n")
+def fn_call_12 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 3\n Missing SysLog reporting:{n}\n")
+
+def fn_call_13 (n):
+    with open ("report.txt",'a') as f :
+        f.write(f"Severity: 3\n Too small logging buffer:{n}\n")
 def user_count(text):
     count = 0
     for i in text:
@@ -37,7 +108,7 @@ def pswd(text):
                 count += 1
             count += 1
     return count
-def is_strong_password(password, min_length=8, char_classes=True, exclude_dict=True):
+def is_strong_password(password, min_length=8, char_classes=True):
   if len(password) < min_length:
     return False
   if char_classes:
@@ -49,14 +120,11 @@ def is_strong_password(password, min_length=8, char_classes=True, exclude_dict=T
       return False
     if not any(char in "!@#$%^&*_" for char in password):
       return False
-  if exclude_dict:
-    with open("dictionary.txt") as f:
-      if any(password.lower() in line.strip() for line in f):
-        return False
   return True
 def find_missing_8021x_ports(text):
   missing_ports = []
   current_interface = None
+  text=[text]
   for line in text:
     if line.startswith("interface"):
       current_interface = line.split()[1]
@@ -70,9 +138,9 @@ def find_missing_8021x_ports(text):
         })
 
   return missing_ports
-def detect_missing_syslog_reporting(config_lines=text):
+def detect_missing_syslog_reporting(lines=text):
   syslog_configured = False
-  for line in config_lines:
+  for line in lines:
     if line.startswith("logging host"):
       syslog_configured = True
       break
@@ -81,12 +149,10 @@ def detect_missing_syslog_reporting(config_lines=text):
     return {"status": "Missing syslog reporting configuration"}
   else:
     return {}
-def detect_small_logging_buffer(threshold,config_lines=text):
+def detect_small_logging_buffer(threshold,line=text):
   buffer_size = None
-  for line in config_lines:
-    if line.startswith("logging buffered"):
-      buffer_size = int(line.split()[2])
-      break
+  if line.startswith("logging buffered"):
+    buffer_size = int(line.split()[2])
 
   if buffer_size and buffer_size < threshold:
     return {"status": f"Logging buffer size too small ({buffer_size}), minimum recommended: {threshold}"}
@@ -118,39 +184,23 @@ def detect_missing_dhcp_snooping(config_lines):
       })
 
   return missing_info
-def detect_port_security_issues(config_lines, max_mac_addresses):
-  """
-  Detects missing or misconfigured port security on access ports.
-
-  Args:
-      config_lines: A list of lines from the switch configuration file.
-      max_mac_addresses: The maximum allowed number of MAC addresses per port.
-
-  Returns:
-      A list of dictionaries containing information about port security issues.
-  """
-
+def detect_port_security_issues(max_mac_addresses,lines=text):
   issues = []
   current_interface = None
+  config_lines=[lines]
   for line in config_lines:
-    # Identify interface configuration block
     if line.startswith("interface"):
       current_interface = line.split()[1]
-    # Check for administratively down interface
     elif current_interface and line.startswith("shutdown"):
       current_interface = None
-    # Check for access mode and VLAN assignment
     elif current_interface and line.startswith("switchport mode access") and "vlan" in line:
-      # Check for missing port security configuration
       if not any(line.lower() for line in config_lines if "switchport port-security" in line.lower()):
         issues.append({
           "interface": current_interface,
           "status": "Missing port security configuration",
           "severity": 1
         })
-      # Check for exceeding allowed MAC addresses (if configured)
       elif any(line.lower() for line in config_lines if "switchport port-security maximum" in line.lower()):
-        # Extract configured maximum MAC addresses (if possible)
         max_configured = None
         for line in config_lines:
           if line.startswith("switchport port-security maximum"):
@@ -164,32 +214,23 @@ def detect_port_security_issues(config_lines, max_mac_addresses):
           })
 
   return issues
-def detect_missing_storm_control(config_lines):
-  """
-  Detects missing or misconfigured storm control on access ports.
-
-  Args:
-      config_lines: A list of lines from the switch configuration file.
-
-  Returns:
-      A list of dictionaries containing information about missing storm control.
-  """
+def detect_missing_storm_control(line=text):
 
   issues = []
   current_interface = None
-  for line in config_lines:
-    if line.startswith("interface"):
-      current_interface = line.split()[1]
-    elif current_interface and line.startswith("shutdown"):
-      current_interface = None
-    elif current_interface and line.startswith("switchport mode access") and "vlan" in line:
-      missing_controls = []
-      if not any(line.lower() for line in config_lines if "storm-control broadcast level" in line.lower()):
-        missing_controls.append("broadcast")
-      if not any(line.lower() for line in config_lines if "storm-control multicast level" in line.lower()):
-        missing_controls.append("multicast")
-      if not any(line.lower() for line in config_lines if "storm-control unicast level" in line.lower()):
-        missing_controls.append("unicast")
+  if line.startswith("interface"):
+    current_interface = line.split()[1]
+  elif current_interface and line.startswith("shutdown"):
+    current_interface = None
+  elif current_interface and line.startswith("switchport mode access") and "vlan" in line:
+    missing_controls = []
+    config_lines=[line]
+    if not any(line.lower() for line in config_lines if "storm-control broadcast level" in line.lower()):
+      missing_controls.append("broadcast")
+    if not any(line.lower() for line in config_lines if "storm-control multicast level" in line.lower()):
+      missing_controls.append("multicast")
+    if not any(line.lower() for line in config_lines if "storm-control unicast level" in line.lower()):
+      missing_controls.append("unicast")
 
       if missing_controls:
         issues.append({
@@ -199,27 +240,14 @@ def detect_missing_storm_control(config_lines):
         })
 
   return issues
-def detect_missing_control_plane_policing(config_lines):
-  """
-  Detects missing control plane policing configuration.
-
-  Args:
-      config_lines: A list of lines from the switch configuration file.
-
-  Returns:
-      A dictionary containing information about missing control plane policing configuration.
-  """
-
-  # Flags for control plane and policy configuration
+def detect_missing_control_plane_policing(line=text):
   control_plane_found = False
   policy_found = False
 
-  for line in config_lines:
-    if line.startswith("control-plane"):
-      control_plane_found = True
-    elif control_plane_found and line.startswith("service-policy input"):
-      policy_found = True
-      break
+  if line.startswith("control-plane"):
+    control_plane_found = True
+  elif control_plane_found and line.startswith("service-policy input"):
+    policy_found = True
 
   if not control_plane_found:
     return {"status": "Missing control plane configuration"}
@@ -227,26 +255,45 @@ def detect_missing_control_plane_policing(config_lines):
     return {"status": "Missing control plane policing policy"}
   else:
     return {}
-def detect_weak_encryption(config_lines, weak_algos=["DES", "3DES", "RC2", "RC4", "MD5", "SHA-1", "WEP", "SSLv2", "SSLv3", "TLSv1", "TLSv1.1"]):
-  """
-  Detects weak encryption algorithms in switch configuration.
-
-  Args:
-      config_lines: A list of lines from the switch configuration file.
-      weak_algos: A list of weak encryption algorithms to check for (default: common weak algorithms).
-
-  Returns:
-      A list of dictionaries containing information about weak encryption usage.
-  """
+def detect_weak_encryption(line=text, weak_algos=["DES", "3DES", "RC2", "RC4", "MD5", "SHA-1", "WEP", "SSLv2", "SSLv3", "TLSv1", "TLSv1.1"]):
 
   weak_instances = []
-  for line in config_lines:
-    for algo in weak_algos:
-      if any(algo.lower() in word.lower() for word in line.split()):
-        weak_instances.append({
-          "location": line,
-          "description": f"Weak encryption algorithm found: {algo}"
-        })
-        break  # Exit inner loop after finding a weak algo on the line
+  for algo in weak_algos:
+    if any(algo.lower() in word.lower() for word in line.split()):
+      weak_instances.append({
+        "location": line,
+        "description": f"Weak encryption algorithm found: {algo}"
+      })
 
   return weak_instances
+fn=[user_count(text),
+   is_strong_password(text),
+   pswd(text),
+   insecure_protocol(text),
+   snmp(text),
+   detect_weak_encryption(text),
+   find_missing_8021x_ports(text),
+   detect_missing_control_plane_policing(text),
+   detect_missing_storm_control(text),
+   detect_port_security_issues(text, 1),
+   detect_missing_dhcp_snooping(text),
+   detect_small_logging_buffer(10000,text),
+   detect_missing_syslog_reporting(text)
+   ]
+fn_call=[
+   fn_call_1,
+   fn_call_2,
+   fn_call_3,
+   fn_call_4,
+   fn_call_5,
+   fn_call_6,
+   fn_call_7,
+   fn_call_8,
+   fn_call_9,
+   fn_call_10_1,
+   fn_call_10_2,
+   fn_call_11,
+   fn_call_12,
+   fn_call_13
+   ]
+
