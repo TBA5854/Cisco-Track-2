@@ -7,100 +7,87 @@ for i in range(n):
         rtf_content = file.read()
 
         text = rtf_to_text(rtf_content)
+        text = [i.strip(" !\t") for i in text.split("\n")]
     file_content.append(text)
 # with open('/home/tba/Downloads/Sample_configs_Prob 2/Sample_configs/conf_2038.rtf', 'r') as file:
 #     rtf_content = file.read()
 
 #     text = rtf_to_text(rtf_content)
 
-text = [i.strip(" !\t") for i in text.split("\n")]
-text = [i for i in text if i != ""]
-for i in text:
-   for j in range(len(fn)):
-       if fn[j] != 0:
-           fn_call[j](i)
-       else:
-           continue
+# text = [i for i in text if i != ""]
+#fix loop
+#intgreate django
+
+sev1=[1,2,6,9]
+sev2=[0,3,4,5,7,8,10,11]
+sev3=[12,13]
 
 
-
-
-
-
-for i in text:
-    print(i)
+# for i in text:
+#     print(i)
 def fn_call_1 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 2\n Too many user accounts:{n}\n")
 
 def fn_call_2 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 1\n Weak user passwords:{n}\n")
 
 def fn_call_3 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 1\n  Missing configuration password:{n}\n")
 
 def fn_call_4 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 2\n Insecure access protocols:{n}\n")
 
 def fn_call_5 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 2\n Insecure SNMP access:{n}\n")
 
 def fn_call_6 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity:2 \n Weak encryption algorithms:{n}\n")
     
 def fn_call_7 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 1\n  Missing host authentication on access ports:{n}\n")
 
 def fn_call_8 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 2\n Missing control plane policing:{n}\n")
 def fn_call_9 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 2\n  Missing Storm control on access ports:{n}\n")
 def fn_call_10_1 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 1\n port security config is missing on access port:{n}\n")
 
 def fn_call_10_2 (n):
-    with open ("report.txt",'a') as f :
-        f.write(f"Severity: 2\nnumber_of_mac_addresses configured on switch are more than what is 
-mentioned in tool configuration:{n}\n")
+        f.write(f"Severity: 2\nnumber_of_mac_addresses configured on switch are more than what is mentioned in tool configuration:{n}\n")
 def fn_call_11 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 2\n Missing DHCP snooping on switch:{n}\n")
 def fn_call_12 (n):
-    with open ("report.txt",'a') as f :
         f.write(f"Severity: 3\n Missing SysLog reporting:{n}\n")
 
 def fn_call_13 (n):
-    with open ("report.txt",'a') as f :
-        f.write(f"Severity: 3\n Too small logging buffer:{n}\n")
-def user_count(text):
+  for line in n:
+    f.write(f"Severity: 3\n Too small logging buffer:{line}\n")
+
+def user_count(line):
+  count = 0
+  if line.startswith("user"):
+    count += 1
+  return count
+def insecure_protocol(line):
+    text=line
     count = 0
     for i in text:
-        if i.startswith("user"):
+        if i=='':
+            continue
+        if i.startswith("tftp-server") or (i.startswith("ip") and i.split(" ")[1] == "http") or (len(i.split(" "))>1 and (i.split(" ")[1] == "ftp" and (i.split(" ")[2] == "username" or (i.split(" ")[2] == "password" and (i.split(" ")[3] == "0" or len(i.split(" ")) == 3))))):
             count += 1
     return count
-def insecure_protocol(text):
-    count = 0
-    for i in text:
-        if i.startswith("tftp-server") or (i.startwith("ip") and i.split(" ")[1] == "http") or (i.split(" ")[1] == "ftp" and (i.split(" ")[2] == "username" or (i.split(" ")[2] == "password" and (i.split(" ")[3] == "0" or len(i.split(" ")) == 3)))):
-            count += 1
-    return count
-def snmp(text):
+def snmp(line):
+    text=line
     count = 0
     for i in text:
         if i.startswith("snmp-server"):
             if i.split(" ")[1]=="group" and i.split(" ")[-1] in ["noauth","v1","v2c"]:
                 count += 1
     return count
-def pswd(text):
+def pswd(line):
+    text=line
     count = 0
     for i in text:
         if i.startswith("enable password"):
@@ -108,7 +95,13 @@ def pswd(text):
                 count += 1
             count += 1
     return count
-def is_strong_password(password, min_length=8, char_classes=True):
+def is_strong_password(line, min_length=8, char_classes=True):
+  if line.startswith("username"):
+    if len(line.split()) < 3:
+      return False
+    password=line.split()[-1]
+  if line.startswith("password"):
+     password=line.split()[-1]
   if len(password) < min_length:
     return False
   if char_classes:
@@ -124,7 +117,7 @@ def is_strong_password(password, min_length=8, char_classes=True):
 def find_missing_8021x_ports(text):
   missing_ports = []
   current_interface = None
-  text=[text]
+  # text=[text]
   for line in text:
     if line.startswith("interface"):
       current_interface = line.split()[1]
@@ -138,10 +131,10 @@ def find_missing_8021x_ports(text):
         })
 
   return missing_ports
-def detect_missing_syslog_reporting(lines=text):
+def detect_missing_syslog_reporting(line=text):
   syslog_configured = False
-  for line in lines:
-    if line.startswith("logging host"):
+  for l in line:
+    if l.startswith("logging host"):
       syslog_configured = True
       break
 
@@ -149,10 +142,9 @@ def detect_missing_syslog_reporting(lines=text):
     return {"status": "Missing syslog reporting configuration"}
   else:
     return {}
-def detect_small_logging_buffer(threshold,line=text):
-  buffer_size = None
+def detect_small_logging_buffer(threshold=10000,line=text):
   if line.startswith("logging buffered"):
-    buffer_size = int(line.split()[2])
+    buffer_size += int(line.split()[2])
 
   if buffer_size and buffer_size < threshold:
     return {"status": f"Logging buffer size too small ({buffer_size}), minimum recommended: {threshold}"}
@@ -184,10 +176,10 @@ def detect_missing_dhcp_snooping(config_lines):
       })
 
   return missing_info
-def detect_port_security_issues(max_mac_addresses,lines=text):
+def detect_port_security_issues_1(max_mac_addresses=1,line=text):
   issues = []
   current_interface = None
-  config_lines=[lines]
+  config_lines=[line]
   for line in config_lines:
     if line.startswith("interface"):
       current_interface = line.split()[1]
@@ -200,7 +192,18 @@ def detect_port_security_issues(max_mac_addresses,lines=text):
           "status": "Missing port security configuration",
           "severity": 1
         })
-      elif any(line.lower() for line in config_lines if "switchport port-security maximum" in line.lower()):
+  return issues
+def detect_port_security_issues_2(max_mac_addresses=1,line=text):
+  issues = []
+  current_interface = None
+  config_lines=[line]
+  for line in config_lines:
+    if line.startswith("interface"):
+      current_interface = line.split()[1]
+    elif current_interface and line.startswith("shutdown"):
+      current_interface = None
+    elif current_interface and line.startswith("switchport mode access") and "vlan" in line:
+       if any(line.lower() for line in config_lines if "switchport port-security maximum" in line.lower()):
         max_configured = None
         for line in config_lines:
           if line.startswith("switchport port-security maximum"):
@@ -210,8 +213,7 @@ def detect_port_security_issues(max_mac_addresses,lines=text):
           issues.append({
             "interface": current_interface,
             "status": f"Configured maximum MAC addresses ({max_configured}) exceed allowed limit ({max_mac_addresses})",
-            "severity": 2
-          })
+            "severity": 2})
 
   return issues
 def detect_missing_storm_control(line=text):
@@ -258,27 +260,36 @@ def detect_missing_control_plane_policing(line=text):
 def detect_weak_encryption(line=text, weak_algos=["DES", "3DES", "RC2", "RC4", "MD5", "SHA-1", "WEP", "SSLv2", "SSLv3", "TLSv1", "TLSv1.1"]):
 
   weak_instances = []
-  for algo in weak_algos:
-    if any(algo.lower() in word.lower() for word in line.split()):
-      weak_instances.append({
-        "location": line,
-        "description": f"Weak encryption algorithm found: {algo}"
-      })
-
+  if type(line) == str:
+    for algo in weak_algos:
+      if any(algo.lower() in word.lower() for word in line.split()):
+        weak_instances.append({
+          "location": line,
+          "description": f"Weak encryption algorithm found: {algo}"
+        })
+  else:
+    for l in line:
+      for algo in weak_algos:
+        if any(algo.lower() in word.lower() for word in l.split()):
+          weak_instances.append({
+            "location": l,
+            "description": f"Weak encryption algorithm found: {algo}"
+          })
   return weak_instances
-fn=[user_count(text),
-   is_strong_password(text),
-   pswd(text),
-   insecure_protocol(text),
-   snmp(text),
-   detect_weak_encryption(text),
-   find_missing_8021x_ports(text),
-   detect_missing_control_plane_policing(text),
-   detect_missing_storm_control(text),
-   detect_port_security_issues(text, 1),
-   detect_missing_dhcp_snooping(text),
-   detect_small_logging_buffer(10000,text),
-   detect_missing_syslog_reporting(text)
+fn=[user_count,
+   is_strong_password,
+   pswd,
+   insecure_protocol,
+   snmp,
+   detect_weak_encryption,
+   find_missing_8021x_ports,
+   detect_missing_control_plane_policing,
+   detect_missing_storm_control,
+   detect_port_security_issues_1,
+   detect_port_security_issues_2,
+   detect_missing_dhcp_snooping,
+   detect_small_logging_buffer,
+   detect_missing_syslog_reporting
    ]
 fn_call=[
    fn_call_1,
@@ -296,4 +307,47 @@ fn_call=[
    fn_call_12,
    fn_call_13
    ]
+data={}
+for i in file_content:
+  buffer_size = None
+  s1=s2=s3=0
+  hostname=""
+  for j in i:
+    if j.startswith("hostname"):
+      hostname=j.split(" ")[1]
+      break
+  f = open(f"templates/{hostname}.txt", "w")
+  for k in i:
+   for j in range(len(fn)):
+      #  if j==5:continue
+       if j==10:
+         if fn[j](i) != 0 and fn[j](i) != [] and fn[j](i) != {} and fn[j](i) != False:
+            if j in sev1:
+                s1+=1
+            elif j in sev2:
+                s2+=1
+            elif j in sev3:
+                s3+=1
+
+         if fn[j](k) != 0 and fn[j](k) != [] and fn[j](k) != {} and fn[j](k) != False:
+           fn_call[j](i)
+           if j in sev1:
+                s1+=1
+           elif j in sev2:
+                s2+=1
+           elif j in sev3:
+                s3+=1
+       else:
+           continue
+  data.append({"host":hostname,"s1":s1,"s2":s2,"s3":s3,"file":f"{hostname}.txt","s":s1+s2+s3})
+  f.close()
+
+from flask import Flask, render_template
+app = Flask(__name__)
+
+@app.route("/")
+def table_view():
+  table_data = data
+  return render_template(r"table.html", data=table_data)
+app.run()
 

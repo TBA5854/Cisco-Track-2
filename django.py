@@ -17,6 +17,6 @@ app = Flask(__name__)
 def table_view():
   table_data = get_tableData()
   return render_template(r"table.html", data=table_data)
-
-if __name__ == "__main__":
-  app.run(debug=True)
+app.run()
+# if __name__ == "__main__":
+#   app.run(debug=True)
